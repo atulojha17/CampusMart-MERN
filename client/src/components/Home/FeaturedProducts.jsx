@@ -4,88 +4,82 @@ import {
   CardFooter,
 } from "../ui/card";
 import { Button } from "../ui/button";
-
-const products = [
-  {
-    id: 1,
-    name: "DSA Book",
-    price: "₹499",
-    image: "https://placehold.co/400x300",
-  },
-  {
-    id: 2,
-    name: "Scientific Calculator",
-    price: "₹899",
-    image: "https://placehold.co/400x300",
-  },
-  {
-    id: 3,
-    name: "Laptop Stand",
-    price: "₹799",
-    image: "https://placehold.co/400x300",
-  },
-  {
-    id: 4,
-    name: "Bluetooth Headphones",
-    price: "₹1499",
-    image: "https://placehold.co/400x300",
-  },
-];
-
+import { useEffect, useState } from "react";
+import api from "../../services/api";
+import { Link } from "react-router-dom";
 function FeaturedProducts() {
-  return (
-    <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6">
+  const [products, setProducts] = useState([]);
 
-        <h2 className="text-4xl font-bold text-center">
+  const fetchProducts = async () => {
+    try {
+      const response = await api.get("/product/all");
+      setProducts(response.data.products);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  return (
+    <section className="bg-gray-50 py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        <h2 className="text-center text-4xl font-bold">
           Featured Products
         </h2>
 
-        <p className="text-center text-gray-500 mt-3">
+        <p className="mt-3 text-center text-gray-500">
           Trending products from students.
         </p>
 
-        <div className="grid gap-8 mt-12 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {products.length === 0 ? (
+            <p className="col-span-full text-center text-gray-500">
+              No products available.
+            </p>
+          ) : (
+            products.map((product) => (
+              <Card
+                key={product._id}
+                className="overflow-hidden transition hover:-translate-y-2 hover:shadow-xl"
+              >
+                <img
+                  src="https://placehold.co/400x300"
+                  alt={product.name}
+                  className="h-56 w-full object-cover"
+                />
 
-          {products.map((product) => (
+                <CardContent className="pt-6">
+                  <h3 className="text-xl font-semibold">
+                    {product.name}
+                  </h3>
 
-            <Card
-              key={product.id}
-              className="overflow-hidden transition hover:shadow-xl hover:-translate-y-2"
-            >
+                  <p className="mt-2 font-bold text-blue-600">
+                    ₹{product.price}
+                  </p>
 
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-56 w-full object-cover"
-              />
+                  <p className="mt-2 text-sm text-gray-500">
+                    {product.category}
+                  </p>
 
-              <CardContent className="pt-6">
+                  <p className="text-sm font-medium text-green-600">
+                    {product.condition}
+                  </p>
+                </CardContent>
 
-                <h3 className="text-xl font-semibold">
-                  {product.name}
-                </h3>
-
-                <p className="mt-2 text-blue-600 font-bold">
-                  {product.price}
-                </p>
-
-              </CardContent>
-
-              <CardFooter>
-
-                <Button className="w-full">
-                  View Product
-                </Button>
-
-              </CardFooter>
-
-            </Card>
-
-          ))}
-
+                <CardFooter>
+                  <Link to={`/product/${product._id}`} className="w-full">
+                    <Button className="w-full">
+                      View Product
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))
+          )}
         </div>
-
       </div>
     </section>
   );
