@@ -10,6 +10,8 @@ function AddProduct() {
     description: "",
   });
 
+  const [image, setImage] = useState(null);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -17,27 +19,50 @@ function AddProduct() {
     });
   };
 
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await api.post("/product/create", formData);
+    try {
+      const productData = new FormData();
 
-    alert(response.data.message);
+      productData.append("name", formData.name);
+      productData.append("price", formData.price);
+      productData.append("category", formData.category);
+      productData.append("condition", formData.condition);
+      productData.append("description", formData.description);
+      productData.append("image", image);
 
-    setFormData({
-      name: "",
-      price: "",
-      category: "",
-      condition: "",
-      description: "",
-    });
+      const response = await api.post(
+        "/product/create",
+        productData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-  } catch (error) {
-    alert(error.response?.data?.message || "Something went wrong");
-    console.log(error);
-  }
-};
+      alert(response.data.message);
+
+      setFormData({
+        name: "",
+        price: "",
+        category: "",
+        condition: "",
+        description: "",
+      });
+
+      setImage(null);
+
+    } catch (error) {
+      alert(error.response?.data?.message || "Something went wrong");
+      console.log(error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 py-10">
@@ -116,6 +141,27 @@ function AddProduct() {
               <option>Like New</option>
               <option>Used</option>
             </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block font-medium">
+              Product Image
+            </label>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full rounded-xl border p-3"
+            />
+
+            {image && (
+              <img
+                src={URL.createObjectURL(image)}
+                alt="Preview"
+                className="mt-4 h-48 w-full rounded-xl object-cover"
+              />
+            )}
           </div>
 
           <div>

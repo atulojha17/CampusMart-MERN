@@ -51,7 +51,7 @@ function ProductDetails() {
         <div className="grid gap-10 md:grid-cols-2">
 
           <img
-            src="https://placehold.co/600x450"
+            src={product.image}
             alt={product.name}
             className="rounded-xl shadow-lg"
           />

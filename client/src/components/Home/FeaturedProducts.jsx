@@ -46,7 +46,7 @@ function FeaturedProducts() {
                 className="overflow-hidden transition hover:-translate-y-2 hover:shadow-xl"
               >
                 <img
-                  src="https://placehold.co/400x300"
+                  src={product.image}
                   alt={product.name}
                   className="h-56 w-full object-cover"
                 />

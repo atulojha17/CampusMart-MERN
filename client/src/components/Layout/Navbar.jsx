@@ -13,7 +13,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b">
+    <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
         {/* Logo */}
@@ -22,33 +22,43 @@ function Navbar() {
         </Link>
 
         {/* Navigation */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden items-center gap-8 md:flex">
 
           <Link
             to="/"
-            className="text-gray-700 hover:text-blue-600 transition"
+            className="text-gray-700 transition hover:text-blue-600"
           >
             Home
           </Link>
 
           <Link
             to="/"
-            className="text-gray-700 hover:text-blue-600 transition"
+            className="text-gray-700 transition hover:text-blue-600"
           >
             Categories
           </Link>
 
+          {/* Sell Product */}
           <Link
-            to="/"
-            className="text-gray-700 hover:text-blue-600 transition"
+            to="/add-product"
+            className="text-gray-700 transition hover:text-blue-600"
           >
             Sell Product
           </Link>
 
+          {/* My Products */}
+          {user && (
+            <Link
+              to="/my-products"
+              className="text-gray-700 transition hover:text-blue-600"
+            >
+              My Products
+            </Link>
+          )}
+
         </div>
 
         {/* Right Side */}
-
         <div className="flex items-center gap-4">
 
           {user ? (
@@ -59,7 +69,7 @@ function Navbar() {
 
               <button
                 onClick={handleLogout}
-                className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 transition"
+                className="rounded-lg bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
               >
                 Logout
               </button>
@@ -75,7 +85,7 @@ function Navbar() {
 
               <Link
                 to="/register"
-                className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 transition"
+                className="rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
               >
                 Register
               </Link>
