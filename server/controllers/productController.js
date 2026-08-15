@@ -77,7 +77,10 @@ const getProducts = async (req, res) => {
 // ================= GET SINGLE PRODUCT =================
 const getSingleProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).populate(
+      "owner",
+      "name email phone"
+    );
 
     if (!product) {
       return res.status(404).json({

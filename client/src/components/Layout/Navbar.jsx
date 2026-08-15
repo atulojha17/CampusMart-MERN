@@ -17,13 +17,17 @@ function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-blue-600">
+        <Link
+          to="/"
+          className="text-2xl font-bold text-blue-600"
+        >
           CampusMart
         </Link>
 
         {/* Navigation */}
         <div className="hidden items-center gap-8 md:flex">
 
+          {/* Home */}
           <Link
             to="/"
             className="text-gray-700 transition hover:text-blue-600"
@@ -31,11 +35,13 @@ function Navbar() {
             Home
           </Link>
 
+          
+          {/* Categories */}
           <Link
-            to="/"
+            to="/products"
             className="text-gray-700 transition hover:text-blue-600"
           >
-            Categories
+            Browse Products
           </Link>
 
           {/* Sell Product */}
