@@ -5,20 +5,34 @@ const Product = require("../models/Product");
 // ================= CREATE PRODUCT =================
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, condition } = req.body;
+    const {
+      name,
+      description,
+      price,
+      category,
+      condition,
+    } = req.body;
 
     let imageUrl = "";
 
+    // Upload image to Cloudinary
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "CampusMart",
-      });
+      const result = await cloudinary.uploader.upload(
+        req.file.path,
+        {
+          folder: "CampusMart",
+        }
+      );
 
       imageUrl = result.secure_url;
 
-      fs.unlinkSync(req.file.path);
+      // Delete temporary local file
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
     }
 
+    // Validate fields
     if (
       !name ||
       !description ||
@@ -33,6 +47,7 @@ const createProduct = async (req, res) => {
       });
     }
 
+    // Create product
     const product = await Product.create({
       name,
       description,
@@ -77,9 +92,11 @@ const getProducts = async (req, res) => {
 // ================= GET SINGLE PRODUCT =================
 const getSingleProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate(
+    const product = await Product.findById(
+      req.params.id
+    ).populate(
       "owner",
-      "name email phone"
+      "name email phone address"
     );
 
     if (!product) {
@@ -124,7 +141,10 @@ const getMyProducts = async (req, res) => {
 // ================= UPDATE PRODUCT =================
 const updateProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    // Find product without populate
+    const product = await Product.findById(
+      req.params.id
+    );
 
     if (!product) {
       return res.status(404).json({
@@ -133,22 +153,31 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    // Check product ownership
+    // Check ownership
     if (product.owner.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to update this product",
+        message:
+          "You are not authorized to update this product",
       });
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    // Update product
+    const updatedProduct =
+      await Product.findByIdAndUpdate(
+        req.params.id,
+        {
+          name: req.body.name,
+          description: req.body.description,
+          price: req.body.price,
+          category: req.body.category,
+          condition: req.body.condition,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
     res.status(200).json({
       success: true,
@@ -166,7 +195,9 @@ const updateProduct = async (req, res) => {
 // ================= DELETE PRODUCT =================
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(
+      req.params.id
+    );
 
     if (!product) {
       return res.status(404).json({
@@ -175,11 +206,12 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    // Check product ownership
+    // Check ownership
     if (product.owner.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to delete this product",
+        message:
+          "You are not authorized to delete this product",
       });
     }
 
