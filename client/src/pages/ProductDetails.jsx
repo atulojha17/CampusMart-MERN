@@ -1,14 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../services/api";
 import Navbar from "../components/Layout/Navbar";
+import { AuthContext } from "../context/AuthContext";
 
 function ProductDetails() {
   const { id } = useParams();
 
+  const { user } = useContext(AuthContext);
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   useEffect(() => {
     fetchProduct();
@@ -31,6 +37,95 @@ function ProductDetails() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ================= CHECK WISHLIST =================
+  const checkWishlist = async () => {
+    if (!user) return;
+
+    try {
+      const response = await api.get(
+        "/wishlist/my-wishlist"
+      );
+
+      const products = response.data.products || [];
+
+      const exists = products.some(
+        (item) => item._id === id
+      );
+
+      setWishlisted(exists);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (user && id) {
+      checkWishlist();
+    }
+  }, [user, id]);
+
+  // ================= ADD WISHLIST =================
+  const addToWishlist = async () => {
+    if (!user) {
+      alert("Please login to add products to wishlist.");
+      return;
+    }
+
+    try {
+      setWishlistLoading(true);
+
+      const response = await api.post(
+        "/wishlist/add",
+        {
+          productId: id,
+        }
+      );
+
+      alert(
+        response.data.message ||
+          "Product added to wishlist"
+      );
+
+      setWishlisted(true);
+    } catch (error) {
+      console.log(error);
+
+      alert(
+        error.response?.data?.message ||
+          "Unable to add product to wishlist"
+      );
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
+  // ================= REMOVE WISHLIST =================
+  const removeFromWishlist = async () => {
+    try {
+      setWishlistLoading(true);
+
+      const response = await api.delete(
+        `/wishlist/remove/${id}`
+      );
+
+      alert(
+        response.data.message ||
+          "Product removed from wishlist"
+      );
+
+      setWishlisted(false);
+    } catch (error) {
+      console.log(error);
+
+      alert(
+        error.response?.data?.message ||
+          "Unable to remove product from wishlist"
+      );
+    } finally {
+      setWishlistLoading(false);
     }
   };
 
@@ -68,7 +163,8 @@ function ProductDetails() {
             </h2>
 
             <p className="mt-2 text-gray-500">
-              {error || "This product may have been removed."}
+              {error ||
+                "This product may have been removed."}
             </p>
 
             <Link
@@ -103,13 +199,11 @@ function ProductDetails() {
 
             {/* ================= PRODUCT IMAGE ================= */}
             <div className="flex h-[450px] items-center justify-center overflow-hidden rounded-2xl bg-gray-50 shadow-md">
-
               <img
                 src={product.image}
                 alt={product.name}
                 className="h-full w-full object-contain p-4"
               />
-
             </div>
 
             {/* ================= PRODUCT DETAILS ================= */}
@@ -129,6 +223,31 @@ function ProductDetails() {
               <p className="mt-4 text-3xl font-bold text-blue-600">
                 ₹{product.price}
               </p>
+
+              {/* Wishlist Button */}
+              <div className="mt-6">
+                {wishlisted ? (
+                  <button
+                    onClick={removeFromWishlist}
+                    disabled={wishlistLoading}
+                    className="w-full rounded-xl border-2 border-red-500 bg-red-50 px-5 py-3 font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {wishlistLoading
+                      ? "Removing..."
+                      : "❤️ Remove from Wishlist"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={addToWishlist}
+                    disabled={wishlistLoading}
+                    className="w-full rounded-xl border-2 border-blue-600 bg-white px-5 py-3 font-semibold text-blue-600 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {wishlistLoading
+                      ? "Adding..."
+                      : "♡ Add to Wishlist"}
+                  </button>
+                )}
+              </div>
 
               {/* Description */}
               <div className="mt-6">
@@ -179,7 +298,6 @@ function ProductDetails() {
                 {product.owner ? (
                   <div className="mt-4 space-y-3">
 
-                    {/* Seller Name */}
                     <p className="text-gray-700">
                       <strong className="text-gray-900">
                         Seller:
@@ -187,7 +305,6 @@ function ProductDetails() {
                       {product.owner.name}
                     </p>
 
-                    {/* Email */}
                     <p className="text-gray-700">
                       <strong className="text-gray-900">
                         Email:
@@ -195,7 +312,6 @@ function ProductDetails() {
                       {product.owner.email}
                     </p>
 
-                    {/* Phone */}
                     {product.owner.phone && (
                       <p className="text-gray-700">
                         <strong className="text-gray-900">
@@ -208,7 +324,6 @@ function ProductDetails() {
                     {/* ================= CONTACT BUTTONS ================= */}
                     <div className="mt-6 grid gap-3 sm:grid-cols-2">
 
-                      {/* Email */}
                       <a
                         href={`mailto:${product.owner.email}?subject=Interested in ${product.name}&body=Hi ${product.owner.name},%0D%0A%0D%0AI am interested in your CampusMart listing: ${product.name}.`}
                         className="rounded-xl bg-blue-600 px-5 py-3 text-center font-semibold text-white transition hover:bg-blue-700"
@@ -216,7 +331,6 @@ function ProductDetails() {
                         📧 Contact Seller
                       </a>
 
-                      {/* Phone */}
                       {product.owner.phone && (
                         <a
                           href={`tel:${product.owner.phone}`}

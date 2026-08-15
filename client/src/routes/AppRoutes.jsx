@@ -9,11 +9,12 @@ import ProductDetails from "../pages/ProductDetails";
 import MyProducts from "../pages/MyProducts";
 import EditProduct from "../pages/EditProduct";
 import Products from "../pages/Products";
-
+import Wishlist from "../pages/Wishlist";
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+        
 
         {/* Home */}
         <Route path="/" element={<Home />} />
@@ -59,6 +60,15 @@ function AppRoutes() {
         <Route
           path="/product/:id"
           element={<ProductDetails />}
+        />
+
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
         />
 
       </Routes>

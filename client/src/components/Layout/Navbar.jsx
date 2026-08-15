@@ -35,7 +35,7 @@ function Navbar() {
             Home
           </Link>
 
-          
+
           {/* Categories */}
           <Link
             to="/products"
@@ -59,6 +59,16 @@ function Navbar() {
               className="text-gray-700 transition hover:text-blue-600"
             >
               My Products
+            </Link>
+          )}
+
+          {/* Wishlist */}
+          {user && (
+            <Link
+              to="/wishlist"
+              className="text-gray-700 transition hover:text-blue-600"
+            >
+              ❤️ Wishlist
             </Link>
           )}
 
