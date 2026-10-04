@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import Navbar from "../components/Layout/Navbar";
 
@@ -9,6 +9,9 @@ function Products() {
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("");
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // ================= FETCH PRODUCTS =================
   const fetchProducts = async () => {
     try {
       const response = await api.get("/product/all");
@@ -21,6 +24,29 @@ function Products() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // ================= READ CATEGORY FROM URL =================
+  useEffect(() => {
+    const urlCategory = searchParams.get("category") || "";
+    setCategory(urlCategory);
+  }, [searchParams]);
+
+  // ================= CATEGORY CHANGE =================
+  const handleCategoryChange = (e) => {
+    const value = e.target.value;
+
+    setCategory(value);
+
+    const params = new URLSearchParams(searchParams);
+
+    if (value) {
+      params.set("category", value);
+    } else {
+      params.delete("category");
+    }
+
+    setSearchParams(params);
+  };
 
   // ================= FILTER PRODUCTS =================
   let filteredProducts = products.filter((product) => {
@@ -54,6 +80,11 @@ function Products() {
     setSearch("");
     setCategory("");
     setSort("");
+
+    const params = new URLSearchParams(searchParams);
+    params.delete("category");
+
+    setSearchParams(params);
   };
 
   return (
@@ -102,7 +133,7 @@ function Products() {
 
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={handleCategoryChange}
                   className="w-full rounded-xl border px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 >
                   <option value="">All Categories</option>

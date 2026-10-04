@@ -1,5 +1,11 @@
 import { Card, CardContent } from "../ui/card";
-import { BookOpen, Laptop, Bike, Backpack } from "lucide-react";
+import {
+  BookOpen,
+  Laptop,
+  Shirt,
+  Sofa,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   {
@@ -11,21 +17,28 @@ const categories = [
     icon: Laptop,
   },
   {
-    title: "Bikes",
-    icon: Bike,
+    title: "Fashion",
+    icon: Shirt,
   },
   {
-    title: "Accessories",
-    icon: Backpack,
+    title: "Furniture",
+    icon: Sofa,
   },
 ];
 
 function Categories() {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (category) => {
+    navigate(`/products?category=${encodeURIComponent(category)}`);
+  };
+
   return (
-    <section className="py-20 bg-white">
+    <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-6">
 
-        <h2 className="text-center text-4xl font-bold">
+        {/* Heading */}
+        <h2 className="text-center text-4xl font-bold text-gray-900">
           Browse Categories
         </h2>
 
@@ -33,6 +46,7 @@ function Categories() {
           Find everything students need in one place.
         </p>
 
+        {/* Categories */}
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
           {categories.map((category) => {
@@ -41,18 +55,29 @@ function Categories() {
             return (
               <Card
                 key={category.title}
-                className="cursor-pointer transition hover:-translate-y-2 hover:shadow-xl"
+                onClick={() =>
+                  handleCategoryClick(category.title)
+                }
+                className="cursor-pointer border-0 shadow-md transition duration-300 hover:-translate-y-2 hover:shadow-xl"
               >
                 <CardContent className="flex flex-col items-center py-10">
 
-                  <Icon
-                    size={42}
-                    className="text-blue-600"
-                  />
+                  {/* Icon */}
+                  <div className="rounded-2xl bg-blue-50 p-5">
+                    <Icon
+                      size={42}
+                      className="text-blue-600"
+                    />
+                  </div>
 
-                  <h3 className="mt-4 text-xl font-semibold">
+                  {/* Category Name */}
+                  <h3 className="mt-5 text-xl font-semibold text-gray-800">
                     {category.title}
                   </h3>
+
+                  <p className="mt-2 text-sm text-gray-500">
+                    Explore {category.title}
+                  </p>
 
                 </CardContent>
               </Card>
