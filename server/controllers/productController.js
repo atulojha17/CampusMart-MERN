@@ -1,7 +1,8 @@
 const cloudinary = require("../config/cloudinary");
-const fs = require("fs");
 const Product = require("../models/Product");
+const streamifier = require("streamifier");
 
+// ================= CREATE PRODUCT =================
 // ================= CREATE PRODUCT =================
 const createProduct = async (req, res) => {
   try {
@@ -15,23 +16,6 @@ const createProduct = async (req, res) => {
 
     let imageUrl = "";
 
-    // Upload image to Cloudinary
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(
-        req.file.path,
-        {
-          folder: "CampusMart",
-        }
-      );
-
-      imageUrl = result.secure_url;
-
-      // Delete temporary local file
-      if (fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
-    }
-
     // Validate fields
     if (
       !name ||
@@ -39,13 +23,39 @@ const createProduct = async (req, res) => {
       !price ||
       !category ||
       !condition ||
-      !imageUrl
+      !req.file
     ) {
       return res.status(400).json({
         success: false,
-        message: "Please fill all fields",
+        message: "Please fill all fields and select an image",
       });
     }
+
+    // Upload image directly to Cloudinary from memory
+    const uploadToCloudinary = () => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "CampusMart",
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        streamifier
+          .createReadStream(req.file.buffer)
+          .pipe(stream);
+      });
+    };
+
+    const result = await uploadToCloudinary();
+
+    imageUrl = result.secure_url;
 
     // Create product
     const product = await Product.create({
@@ -64,6 +74,8 @@ const createProduct = async (req, res) => {
       product,
     });
   } catch (error) {
+    console.error("CREATE PRODUCT ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
