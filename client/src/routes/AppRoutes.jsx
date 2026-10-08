@@ -10,11 +10,15 @@ import MyProducts from "../pages/MyProducts";
 import EditProduct from "../pages/EditProduct";
 import Products from "../pages/Products";
 import Wishlist from "../pages/Wishlist";
+import AdminRoute from "../components/AdminRoute";
+import AdminDashboard from "../pages/AdminDashboard";
+import NotFound from "../pages/NotFound";
+
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        
+
 
         {/* Home */}
         <Route path="/" element={<Home />} />
@@ -70,7 +74,15 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

@@ -24,10 +24,7 @@ const requireSignIn = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     // Verify token
-    const decode = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
 
     // Store decoded user information
     req.user = decode;
@@ -41,6 +38,26 @@ const requireSignIn = async (req, res, next) => {
   }
 };
 
+// Admin authorization
+const requireAdmin = (req, res, next) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access Denied. Admin Only",
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(403).json({
+      success: false,
+      message: "Admin Authorization Failed",
+    });
+  }
+};
+
 module.exports = {
   requireSignIn,
+  requireAdmin,
 };
